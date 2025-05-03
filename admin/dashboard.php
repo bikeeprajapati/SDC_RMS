@@ -24,15 +24,83 @@ $stmt->execute();
 $result = $stmt->get_result();
 $admin = $result->fetch_assoc();
 
-// Get total students count
+// Get semesters
+$sql = "SELECT * FROM semesters WHERE status = 'active' ORDER BY name";
+$stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Error preparing semesters query: " . $conn->error);
+}
+$stmt->execute();
+$semesters = $stmt->get_result();
+
+// Get years
+$sql = "SELECT * FROM years WHERE status = 'active' ORDER BY name";
+$stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Error preparing years query: " . $conn->error);
+}
+$stmt->execute();
+$years = $stmt->get_result();
+
+// Get sections
+$sql = "SELECT * FROM sections WHERE status = 'active' ORDER BY name";
+$stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Error preparing sections query: " . $conn->error);
+}
+$stmt->execute();
+$sections = $stmt->get_result();
+
+// Get filtered students count
+$semester_id = isset($_GET['semester']) ? (int)$_GET['semester'] : null;
+$year_id = isset($_GET['year']) ? (int)$_GET['year'] : null;
+$section_id = isset($_GET['section']) ? (int)$_GET['section'] : null;
+
+$where_conditions = ["status = 'active'"];
+$params = [];
+$types = "";
+
+if ($semester_id) {
+    $where_conditions[] = "semester_id = ?";
+    $params[] = $semester_id;
+    $types .= "i";
+}
+
+if ($year_id) {
+    $where_conditions[] = "year_id = ?";
+    $params[] = $year_id;
+    $types .= "i";
+}
+
+if ($section_id) {
+    $where_conditions[] = "section_id = ?";
+    $params[] = $section_id;
+    $types .= "i";
+}
+
+$where_clause = implode(" AND ", $where_conditions);
+$sql = "SELECT COUNT(*) as total FROM students WHERE " . $where_clause;
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    die("Error preparing filtered students query: " . $conn->error);
+}
+
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+
+$stmt->execute();
+$filtered_students = $stmt->get_result()->fetch_assoc()['total'];
+
+// Get total students count (without filters)
 $sql = "SELECT COUNT(*) as total FROM students WHERE status = 'active'";
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
-    die("Error preparing students count query: " . $conn->error);
+    die("Error preparing total students query: " . $conn->error);
 }
 $stmt->execute();
-$result = $stmt->get_result();
-$total_students = $result->fetch_assoc()['total'];
+$total_students = $stmt->get_result()->fetch_assoc()['total'];
 
 // Get total grades count
 $sql = "SELECT COUNT(*) as total FROM grades";
@@ -41,10 +109,9 @@ if (!$stmt) {
     die("Error preparing grades count query: " . $conn->error);
 }
 $stmt->execute();
-$result = $stmt->get_result();
-$total_results = $result->fetch_assoc()['total'];
+$total_results = $stmt->get_result()->fetch_assoc()['total'];
 
-// Get recent grades
+// Get recent grades with proper joins
 $sql = "SELECT g.*, s.first_name, s.last_name, c.course_name as program 
         FROM grades g 
         JOIN enrollments e ON g.enrollment_id = e.id
@@ -218,8 +285,46 @@ $recent_results = $stmt->get_result();
         <!-- Main Content -->
         <div class="main-content">
             <div class="dashboard-header">
-                <div class="welcome-text">
-                    Welcome back, <?php echo htmlspecialchars($admin['username']); ?>!
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="welcome-text">
+                            Welcome back, <?php echo htmlspecialchars($admin['username']); ?>!
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="GET" class="row g-3">
+                            <div class="col-md-4">
+                                <select name="semester" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Semesters</option>
+                                    <?php while($semester = $semesters->fetch_assoc()): ?>
+                                        <option value="<?php echo $semester['id']; ?>" <?php echo $semester_id == $semester['id'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($semester['name']); ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select name="year" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Years</option>
+                                    <?php while($year = $years->fetch_assoc()): ?>
+                                        <option value="<?php echo $year['id']; ?>" <?php echo $year_id == $year['id'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($year['name']); ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select name="section" class="form-select" onchange="this.form.submit()">
+                                    <option value="">All Sections</option>
+                                    <?php while($section = $sections->fetch_assoc()): ?>
+                                        <option value="<?php echo $section['id']; ?>" <?php echo $section_id == $section['id'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($section['name']); ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -229,7 +334,7 @@ $recent_results = $stmt->get_result();
                         <div class="stats-icon">
                             <i class="fas fa-user-graduate"></i>
                         </div>
-                        <div class="stats-number"><?php echo $total_students; ?></div>
+                        <div class="stats-number"><?php echo $filtered_students; ?></div>
                         <div class="stats-label">Total Students</div>
                     </div>
                 </div>

@@ -111,6 +111,42 @@ CREATE TABLE IF NOT EXISTS `activity_logs` (
     FOREIGN KEY (`admin_id`) REFERENCES `admin`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create semesters table
+CREATE TABLE IF NOT EXISTS `semesters` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `status` ENUM('active', 'inactive') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create years table
+CREATE TABLE IF NOT EXISTS `years` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `status` ENUM('active', 'inactive') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create sections table
+CREATE TABLE IF NOT EXISTS `sections` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `status` ENUM('active', 'inactive') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add semester_id, year_id, and section_id to students table
+ALTER TABLE `students` 
+ADD COLUMN `semester_id` INT,
+ADD COLUMN `year_id` INT,
+ADD COLUMN `section_id` INT,
+ADD FOREIGN KEY (`semester_id`) REFERENCES `semesters`(`id`),
+ADD FOREIGN KEY (`year_id`) REFERENCES `years`(`id`),
+ADD FOREIGN KEY (`section_id`) REFERENCES `sections`(`id`);
+
 -- Insert default admin user (password: admin123)
 INSERT INTO `admin` (`username`, `password`, `email`, `full_name`, `role`) 
 VALUES ('admin', '$2y$10$YourNewHashHere', 'admin@example.com', 'System Administrator', 'super_admin')
@@ -124,4 +160,27 @@ ON DUPLICATE KEY UPDATE `id` = `id`;
 -- Insert sample subject
 INSERT INTO `subjects` (`subject_code`, `subject_name`, `description`, `units`, `course_id`, `year_level`, `semester`) 
 VALUES ('IT101', 'Introduction to Programming', 'Basic programming concepts', 3, 1, '1st Year', '1st Semester')
-ON DUPLICATE KEY UPDATE `id` = `id`; 
+ON DUPLICATE KEY UPDATE `id` = `id`;
+
+-- Insert default data
+INSERT INTO `semesters` (`name`) VALUES 
+('First Semester'),
+('Second Semester'),
+('Third Semester'),
+('Fourth Semester'),
+('Fifth Semester'),
+('Sixth Semester'),
+('Seventh Semester'),
+('Eighth Semester');
+
+INSERT INTO `years` (`name`) VALUES 
+('First Year'),
+('Second Year'),
+('Third Year'),
+('Fourth Year');
+
+INSERT INTO `sections` (`name`) VALUES 
+('Section A'),
+('Section B'),
+('Section C'),
+('Section D'); 

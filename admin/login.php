@@ -299,21 +299,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* Remember Me Checkbox Styles */
         .form-check {
-            margin: 1rem 0;
-            padding-left: 2.5rem;
+            margin: 0;
+            padding: 0;
             position: relative;
+            display: flex;
+            align-items: center;
+            height: 24px;
         }
 
         .form-check-input {
-            position: absolute;
-            left: 0;
-            top: 0.25rem;
+            position: relative;
+            margin: 0;
+            margin-right: 8px;
             width: 1.25rem;
             height: 1.25rem;
             border: 2px solid #1a2a6c;
             border-radius: 0.25rem;
             transition: all 0.3s ease;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
         .form-check-input:checked {
@@ -329,6 +333,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #6c757d;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
+            line-height: 1.25rem;
+            font-size: 0.9rem;
         }
 
         .form-check-label:hover {
@@ -455,30 +463,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             100% { box-shadow: inset 0px 0px 0px 30px #1a2a6c; }
         }
 
+        /* Forgot Password Link */
         .forgot-password {
             color: #6c757d;
             text-decoration: none;
             transition: all 0.3s ease;
-            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
         }
 
-        .forgot-password::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(45deg, #1a2a6c, #b21f1f);
-            transition: all 0.3s ease;
+        .forgot-password i {
+            font-size: 0.9rem;
         }
 
         .forgot-password:hover {
             color: #1a2a6c;
-        }
-
-        .forgot-password:hover::after {
-            width: 100%;
         }
     </style>
 </head>
@@ -518,11 +520,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="remember" name="remember" <?php echo $remembered_username ? 'checked' : ''; ?>>
-                    <label class="form-check-label" for="remember">
-                        Remember me
-                    </label>
+                <div class="row mb-4">
+                    <div class="col-6 d-flex align-items-center">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember" <?php echo $remembered_username ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="remember">
+                                Remember me
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-6 d-flex align-items-center justify-content-end">
+                        <a href="forgot_password.php" class="forgot-password">
+                            <i class="fas fa-key me-2"></i>Forgot Password?
+                        </a>
+                    </div>
                 </div>
 
                 <div class="d-grid mb-4">
@@ -532,10 +543,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="text-center">
-                    <a href="forgot_password.php" class="forgot-password mb-3 d-inline-block">
-                        <i class="fas fa-key me-2"></i>Forgot Password?
-                    </a>
-                    <br>
                     <a href="../index.php" class="back-to-home">
                         <i class="fas fa-arrow-left me-2"></i>Back to Home
                     </a>
