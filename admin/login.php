@@ -33,7 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Debug information
             error_log("Login attempt - Username: " . $username);
             
-            $sql = "SELECT * FROM admin WHERE username = ? AND status = 'active'";
+            // First check if role column exists
+            $check_role = $conn->query("SHOW COLUMNS FROM admins LIKE 'role'");
+            if ($check_role->num_rows > 0) {
+                $sql = "SELECT id, username, password, role FROM admins WHERE username = ?";
+            } else {
+                $sql = "SELECT id, username, password FROM admins WHERE username = ?";
+            }
+            
             $stmt = $conn->prepare($sql);
             
             if ($stmt === false) {
@@ -63,10 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     error_log("Password verification successful");
                     
                     // Update last login
-                    $update_sql = "UPDATE admin SET last_login = NOW() WHERE id = ?";
+                    $update_sql = "UPDATE admins SET last_login = NOW() WHERE id = ?";
                     $update_stmt = $conn->prepare($update_sql);
-                    $update_stmt->bind_param("i", $admin['id']);
-                    $update_stmt->execute();
+                    if ($update_stmt === false) {
+                        error_log("Error preparing update statement: " . $conn->error);
+                    } else {
+                        $update_stmt->bind_param("i", $admin['id']);
+                        $update_stmt->execute();
+                    }
                     
                     // Set remember me cookie if checked
                     if ($remember) {

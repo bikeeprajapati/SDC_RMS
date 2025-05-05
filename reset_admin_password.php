@@ -11,7 +11,7 @@ echo "New password: " . $password . "\n";
 echo "New hash: " . $new_hash . "\n\n";
 
 // First check if admin exists
-$check_sql = "SELECT id FROM admin WHERE username = ?";
+$check_sql = "SELECT id FROM admins WHERE username = ?";
 $check_stmt = $conn->prepare($check_sql);
 $check_stmt->bind_param("s", $username);
 $check_stmt->execute();
@@ -19,7 +19,7 @@ $result = $check_stmt->get_result();
 
 if ($result->num_rows === 1) {
     // Update existing admin
-    $update_sql = "UPDATE admin SET password = ? WHERE username = ?";
+    $update_sql = "UPDATE admins SET password = ? WHERE username = ?";
     $update_stmt = $conn->prepare($update_sql);
     $update_stmt->bind_param("ss", $new_hash, $username);
     
@@ -30,7 +30,7 @@ if ($result->num_rows === 1) {
     }
 } else {
     // Create new admin
-    $insert_sql = "INSERT INTO admin (username, password, email, full_name, role) VALUES (?, ?, 'admin@example.com', 'System Administrator', 'super_admin')";
+    $insert_sql = "INSERT INTO admins (username, password, email, full_name, role) VALUES (?, ?, 'admin@example.com', 'System Administrator', 'super_admin')";
     $insert_stmt = $conn->prepare($insert_sql);
     $insert_stmt->bind_param("ss", $username, $new_hash);
     

@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             // Check if email exists in admin table
-            $sql = "SELECT id, username FROM admin WHERE email = ?";
+            $sql = "SELECT id, username FROM admins WHERE email = ?";
             $stmt = $conn->prepare($sql);
             
             if ($stmt === false) {
