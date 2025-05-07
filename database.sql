@@ -183,4 +183,16 @@ INSERT INTO `sections` (`name`) VALUES
 ('Section A'),
 ('Section B'),
 ('Section C'),
-('Section D'); 
+('Section D');
+
+-- Notices table
+CREATE TABLE IF NOT EXISTS `notices` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `title` VARCHAR(255) NOT NULL,
+    `content` TEXT NOT NULL,
+    `created_by` INT NOT NULL,
+    `status` ENUM('active', 'inactive') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`created_by`) REFERENCES `admin`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
